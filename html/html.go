@@ -2,35 +2,54 @@ package html
 
 import "strings"
 
-type Params struct {
-	Lang string
-	Head *Head
-	Body *Body
-}
-
 type HTML struct {
-	Tag
+	token Token
+	lang  string
+	head  *Head
+	body  *Body
 }
 
-func NewHTML(p Params) *HTML {
+func NewHTML(lang string) *HTML {
 	return &HTML{
-		Tag{
-			Token:       TokenHTML,
-			SelfClosing: false,
-			Attr:        NewAttr().Set("lang", p.Lang),
-			Children: []Node{
-				p.Head,
-				p.Body,
-			},
-		},
+		token: NewToken("html"),
+		lang:  lang,
+		head:  nil,
+		body:  nil,
 	}
+}
+
+func (h *HTML) WithHead(head *Head) *HTML {
+	h.head = head
+
+	return h
+}
+
+func (h *HTML) WithBody(body *Body) *HTML {
+	h.body = body
+
+	return h
+}
+
+func (h *HTML) TokenLiteral() string {
+	return h.token.Literal
 }
 
 func (h *HTML) String() string {
 	var out strings.Builder
 	out.WriteString("<!DOCTYPE html>")
 
-	out.WriteString(h.Tag.String())
+	tag := NewTag(h.token).
+		WithAttr(
+			NewAttr().Set("lang", h.lang),
+		).
+		WithChildren(
+			[]Node{
+				h.head,
+				h.body,
+			},
+		)
+
+	out.WriteString(tag.String())
 
 	return out.String()
 }
