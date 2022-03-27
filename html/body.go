@@ -1,12 +1,27 @@
 package html
 
 type Body struct {
+	token   Token
+	content []Node
 }
 
-func (*Body) String() string {
-	return ""
+func NewBody() *Body {
+	return &Body{
+		token:   NewToken("body"),
+		content: []Node{},
+	}
 }
 
-func (*Body) TokenLiteral() string {
-	return ""
+func (b *Body) WithContent(nodes []Node) *Body {
+	b.content = nodes
+
+	return b
+}
+
+func (b *Body) String() string {
+	return b.token.Literal
+}
+
+func (b *Body) TokenLiteral() string {
+	return NewTag(b.token).WithChildren(b.content).String()
 }
