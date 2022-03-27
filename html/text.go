@@ -11,7 +11,3 @@ func (t *Text) TokenLiteral() string {
 func (t *Text) String() string {
 	return t.Text
 }
-
-func (t *Text) inlineNode() {
-
-}
