@@ -3,39 +3,76 @@ package html
 import "strings"
 
 type Tag struct {
-	Token       Token
-	SelfClosing bool
-	Attr        Attr
-	Children    []Node
+	token       Token
+	selfClosing bool
+	attr        Attr
+	children    []Node
+}
+
+func NewTag(token Token) *Tag {
+	return &Tag{
+		token:       token,
+		selfClosing: false,
+		attr:        nil,
+		children:    nil,
+	}
+}
+
+func (t *Tag) SelfClosing() *Tag {
+	t.selfClosing = true
+	return t
+}
+
+func (t *Tag) WithAttr(attr Attr) *Tag {
+	t.attr = attr
+
+	return t
+}
+
+func (t *Tag) WithChildren(nodes []Node) *Tag {
+	t.children = nodes
+
+	return t
+}
+
+func (t *Tag) AddChildren(nodes []Node) *Tag {
+	for _, v := range nodes {
+		t.children = append(t.children, v)
+	}
+
+	return t
+}
+
+func (t *Tag) AddChild(node Node) *Tag {
+	t.children = append(t.children, node)
+
+	return t
 }
 
 func (t *Tag) leading() string {
 	var out strings.Builder
 
 	out.WriteByte('<')
-	out.WriteString(string(t.Token))
-	if !t.Attr.IsEmpty() {
+	out.WriteString(t.token.Literal)
+	if !t.attr.IsEmpty() {
 		out.WriteByte(' ')
-		out.WriteString(t.Attr.Encode())
+		out.WriteString(t.attr.Encode())
 	}
-	if t.SelfClosing {
-		out.WriteString("/>")
-	} else {
-		out.WriteByte('>')
-	}
+
+	out.WriteByte('>')
 
 	return out.String()
 }
 
 func (t *Tag) trailing() string {
-	if t.SelfClosing {
+	if t.selfClosing {
 		return ""
 	}
-	return "</" + string(t.Token) + ">"
+	return "</" + t.token.Literal + ">"
 }
 
 func (t *Tag) TokenLiteral() string {
-	return string(t.Token)
+	return t.token.Literal
 }
 
 func (t *Tag) String() string {
@@ -43,7 +80,7 @@ func (t *Tag) String() string {
 
 	out.WriteString(t.leading())
 
-	for _, node := range t.Children {
+	for _, node := range t.children {
 		out.WriteString(node.String())
 	}
 
