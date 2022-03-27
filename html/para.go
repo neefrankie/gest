@@ -1,13 +1,21 @@
 package html
 
-type ParaParams struct {
-	ClassName string
-	Children  []Node
-}
-
 type Para struct {
-	ClassName string
-	Children  []Node
+	token   Token
+	content []Node
 }
 
-func (p *Para) blockNode() {}
+func NewPara(content []Node) *Para {
+	return &Para{
+		token:   NewToken("p"),
+		content: content,
+	}
+}
+
+func (p *Para) TokenLiteral() string {
+	return p.token.Literal
+}
+
+func (p *Para) String() string {
+	return NewTag(p.token).WithChildren(p.content).String()
+}
